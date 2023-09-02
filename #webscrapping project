@@ -1,19 +1,36 @@
 #webscrapping project
 
+-----#impor the neccesary libraries-----
 from bs4 import BeautifulSoup
 import requests
 import pandas as pd
+
+----- #retrive the data and prepare for manipulation-----
 
 url="https://en.wikipedia.org/wiki/List_of_largest_companies_in_the_United_States_by_revenue"
 url_get=requests.get(url).text
 soup=BeautifulSoup(url_get, "html.parser")
 #print(soup.prettify())
 
+----- set up a data frame with headers------
+
 table_2=soup.find_all('table', class_='wikitable sortable')[1]
-table_2_headers=table_2.find_all('th')
-table_2_headers=[title.text.strip() for title in headers_table_2]
+table_2_full_headers=table_2.find_all('th')
+table_2_proper_header=[title.text.strip() for title in table_2_full_headers]
 #print(table_2_headers)
-df=pd.DataFrame(columns=[table_2_headers])
+df=pd.DataFrame(columns=[table_2_proper_header])
 df
 
-df.to_csv("/Users/interslavia/Desktop/webscrapping_python_project.csv")
+------retrieve the content of rows and cells from wikipedia into the table ------
+table_2_rows=table_2.find_all('tr')
+for row in table_2_rows[1:]:
+    row_data=row.find_all('td')
+    individual_cell=[cell.text.strip() for cell in row_data]
+
+    length=len(df)
+    df.loc[length]=individual_cell
+df
+
+----save in csv on desktop----
+
+df.to_csv("/Users/interslavia/Desktop/Webscrapping_python_project.csv")
